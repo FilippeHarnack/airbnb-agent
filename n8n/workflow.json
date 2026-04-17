@@ -1,0 +1,225 @@
+{
+  "name": "HostAgent — Airbnb Webhook Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "airbnb-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node_webhook_trigger",
+      "name": "Webhook Airbnb",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "airbnb-events"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event_type }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "node_validate",
+      "name": "Validar Payload",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.NEXTJS_APP_URL }}/api/webhook/n8n",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-webhook-secret",
+              "value": "={{ $env.N8N_WEBHOOK_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "event_type",
+              "value": "={{ $json.event_type }}"
+            },
+            {
+              "name": "reservation",
+              "value": "={{ $json.reservation }}"
+            },
+            {
+              "name": "received_at",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node_send_nextjs",
+      "name": "Enviar ao Next.js",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [640, 200]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event_type }}",
+              "value2": "reservation.created",
+              "operation": "equal"
+            }
+          ]
+        }
+      },
+      "id": "node_is_new_reservation",
+      "name": "É nova reserva?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [840, 200]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "🏠 *Nova reserva recebida!*\n\n👤 Hóspede: {{ $json.reservation.guest.name }}\n📅 Check-in: {{ $json.reservation.check_in }}\n📅 Check-out: {{ $json.reservation.check_out }}\n💰 Repasse: R$ {{ $json.reservation.pricing.host_payout }}\n\n🤖 Insight IA: {{ $json.ai_insight }}\n\n_Gerenciado pelo HostAgent_",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "node_telegram",
+      "name": "Notificação Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1040, 100],
+      "credentials": {
+        "telegramApi": {
+          "id": "telegram_creds",
+          "name": "Telegram Bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"ok\", \"message\": \"Webhook processado com sucesso\" }"
+      },
+      "id": "node_respond_ok",
+      "name": "Resposta OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1040, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"error\", \"message\": \"Payload inválido\" }",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "node_respond_err",
+      "name": "Resposta Erro",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [640, 420]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "node_schedule",
+      "name": "Agendamento Diário",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 560]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.NEXTJS_APP_URL }}/api/ai",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-webhook-secret",
+              "value": "={{ $env.N8N_WEBHOOK_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "monthly_analysis"
+            }
+          ]
+        }
+      },
+      "id": "node_daily_ai",
+      "name": "Análise IA Diária",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [440, 560]
+    }
+  ],
+  "connections": {
+    "Webhook Airbnb": {
+      "main": [[ { "node": "Validar Payload", "type": "main", "index": 0 } ]]
+    },
+    "Validar Payload": {
+      "main": [
+        [ { "node": "Enviar ao Next.js",  "type": "main", "index": 0 } ],
+        [ { "node": "Resposta Erro",       "type": "main", "index": 0 } ]
+      ]
+    },
+    "Enviar ao Next.js": {
+      "main": [[ { "node": "É nova reserva?", "type": "main", "index": 0 } ]]
+    },
+    "É nova reserva?": {
+      "main": [
+        [ { "node": "Notificação Telegram", "type": "main", "index": 0 } ],
+        [ { "node": "Resposta OK",           "type": "main", "index": 0 } ]
+      ]
+    },
+    "Notificação Telegram": {
+      "main": [[ { "node": "Resposta OK", "type": "main", "index": 0 } ]]
+    },
+    "Agendamento Diário": {
+      "main": [[ { "node": "Análise IA Diária", "type": "main", "index": 0 } ]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["airbnb", "hostagent", "webhook"],
+  "_comment": "Importe este arquivo em: n8n > Workflows > Import from file. Configure as variáveis de ambiente: NEXTJS_APP_URL, N8N_WEBHOOK_SECRET, TELEGRAM_CHAT_ID"
+}
