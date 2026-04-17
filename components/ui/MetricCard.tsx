@@ -29,7 +29,7 @@ export default function MetricCard({
       style={{ animationDelay: `${animDelay}ms`, animationFillMode: 'forwards' }}
     >
       <div className="flex items-start justify-between mb-3">
-        <span className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">{label}</span>
+        <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">{label}</span>
         {Icon && (
           <div className={cn('w-7 h-7 rounded-lg bg-current/8 flex items-center justify-center', iconColor)}>
             <Icon size={14} className={iconColor} />
@@ -37,7 +37,7 @@ export default function MetricCard({
         )}
       </div>
 
-      <p className="font-display font-semibold text-2xl text-neutral-800 leading-none mb-2">
+      <p className="font-display font-semibold text-2xl text-neutral-800 dark:text-neutral-200 leading-none mb-2">
         {value}
       </p>
 

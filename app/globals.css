@@ -34,11 +34,11 @@ body {
 
 @layer components {
   .card {
-    @apply bg-white border border-black/[0.06] rounded-xl p-5;
+    @apply bg-white dark:bg-neutral-800 border border-black/[0.06] dark:border-white/[0.06] rounded-xl p-5;
   }
 
   .card-hover {
-    @apply card transition-all duration-200 hover:shadow-md hover:border-black/10;
+    @apply card transition-all duration-200 hover:shadow-md hover:border-black/10 dark:hover:border-white/20;
   }
 
   .btn-primary {

@@ -21,9 +21,9 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-56 shrink-0 h-screen flex flex-col bg-white border-r border-black/[0.06] fixed left-0 top-0 z-30">
+    <aside className="w-56 shrink-0 h-screen flex flex-col bg-white dark:bg-neutral-900 border-r border-black/[0.06] dark:border-white/[0.06] fixed left-0 top-0 z-30">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-black/[0.06]">
+      <div className="px-5 py-5 border-b border-black/[0.06] dark:border-white/[0.06]">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-brand rounded-lg flex items-center justify-center">
             <Home size={14} className="text-white" />
@@ -46,10 +46,10 @@ export default function Sidebar() {
                 'flex items-center gap-2.5 px-4 py-2.5 mx-2 rounded-lg text-[13px] transition-all duration-150',
                 active
                   ? 'bg-brand/8 text-brand font-medium'
-                  : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-800'
+                  : 'text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 hover:text-neutral-800 dark:hover:text-neutral-200'
               )}
             >
-              <Icon size={15} className={cn(active ? 'text-brand' : 'text-neutral-400')} />
+              <Icon size={15} className={cn(active ? 'text-brand' : 'text-neutral-400 dark:text-neutral-500')} />
               {label}
             </Link>
           )
@@ -57,7 +57,7 @@ export default function Sidebar() {
       </nav>
 
       {/* AI Badge */}
-      <div className="p-3 border-t border-black/[0.06]">
+      <div className="p-3 border-t border-black/[0.06] dark:border-white/[0.06]">
         <div className="bg-gradient-to-br from-brand/5 to-brand/10 border border-brand/15 rounded-xl p-3">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-5 h-5 bg-brand rounded-md flex items-center justify-center">
@@ -66,13 +66,13 @@ export default function Sidebar() {
             <span className="text-[11px] font-semibold text-brand">Agente IA ativo</span>
             <span className="ml-auto w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse-dot" />
           </div>
-          <p className="text-[11px] text-neutral-500 leading-relaxed">
+          <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
             Analisando reservas e gerando insights em tempo real.
           </p>
         </div>
         <Link
           href="/settings"
-          className="flex items-center gap-2 px-2 py-2 mt-1 text-[12px] text-neutral-400 hover:text-neutral-600 rounded-lg hover:bg-neutral-50 transition-colors"
+          className="flex items-center gap-2 px-2 py-2 mt-1 text-[12px] text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
         >
           <Settings size={13} />
           Configurações
