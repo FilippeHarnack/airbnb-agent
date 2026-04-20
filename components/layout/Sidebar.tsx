@@ -15,6 +15,7 @@ const NAV = [
   { href: '/financeiro',    label: 'Financeiro',   icon: Wallet },
   { href: '/calendario',    label: 'Calendário',   icon: Calendar },
   { href: '/sazonalidade',  label: 'Sazonalidade', icon: TrendingUp },
+  { href: '/beams',         label: 'Beams',        icon: Sparkles },
 ]
 
 export default function Sidebar() {
